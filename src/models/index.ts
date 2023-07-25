@@ -1,8 +1,11 @@
-import mongoose from "mongoose";
+import DataOffering from "./DataOffering/DataOffering.model";
+import Ecosystem from "./Ecosystem/Ecosystem.model";
+import Participant from "./Participant/Participant.model";
+import ServiceOffering from "./ServiceOffering/ServiceOffering.model";
 
 export default {
-  DataOffering: mongoose.connection.collection("dataofferings"),
-  Ecosystem: mongoose.connection.collection("ecosystems"),
-  Participant: mongoose.connection.collection("participants"),
-  ServiceOffering: mongoose.connection.collection("serviceofferings"),
+  DataOffering,
+  Ecosystem,
+  Participant,
+  ServiceOffering,
 };

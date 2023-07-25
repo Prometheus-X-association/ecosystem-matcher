@@ -1,0 +1,826 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Prometheus-X Ecosystem Matcher",
+    "version": "0.1.0",
+    "description": "API enabling the matching of ecosystems to data and service offerings."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/v1"
+    }
+  ],
+  "paths": {
+    "/matching/ecosystems": {
+      "get": {
+        "summary": "Find matching ecosystems",
+        "description": "Finds matching ecosystems based on provided data or service(s)",
+        "parameters": [
+          {
+            "name": "servicesIds",
+            "in": "query",
+            "description": "Array of service IDs to match",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "dataIds",
+            "in": "query",
+            "description": "Array of data IDs to match",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with matching ecosystems",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Ecosystem"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/matching/data-services": {
+      "get": {
+        "summary": "Find closest corresponding data and services",
+        "description": "Uses MongoDB text index to find closest corresponding data and services based on the needs of the ecosystem",
+        "parameters": [
+          {
+            "name": "ecosystemId",
+            "in": "query",
+            "description": "ID of the ecosystem to find matching data and services",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with matching data and services",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/DataOffering"
+                      }
+                    },
+                    "services": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ServiceOffering"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, missing ecosystemId from query parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "missing ecosystemId from query parameter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Ecosystem not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "ecosystem not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "DataOffering": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Title of the data offering"
+          },
+          "dataType": {
+            "type": "string",
+            "description": "Type of the data"
+          },
+          "dataSize": {
+            "type": "string",
+            "description": "Size of the data"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the data offering"
+          },
+          "identifier": {
+            "type": "string",
+            "description": "Identifier of the data offering"
+          },
+          "license": {
+            "type": "string",
+            "description": "License information for the data offering"
+          },
+          "publisher": {
+            "type": "string",
+            "description": "Publisher of the data offering"
+          },
+          "hasPolicy": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of policies associated with the data offering"
+          },
+          "offeredBy": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of Participant IDs offering the data"
+          },
+          "accrualPeriodicity": {
+            "type": "string",
+            "description": "Accrual periodicity of the data offering"
+          },
+          "businessModel": {
+            "type": "string",
+            "description": "Business model associated with the data offering"
+          },
+          "landingPage": {
+            "type": "string",
+            "description": "Landing page URL for the data offering"
+          },
+          "jsonld": {
+            "type": "string",
+            "description": "JSON-LD representation of the data offering"
+          },
+          "schema_version": {
+            "type": "string",
+            "description": "Schema version of the data offering"
+          }
+        }
+      },
+      "Ecosystem": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the ecosystem",
+            "required": true
+          },
+          "purposeAndGoals": {
+            "type": "object",
+            "properties": {
+              "keyPurpose": {
+                "type": "string",
+                "description": "Key purpose of the ecosystem",
+                "default": ""
+              },
+              "principles": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Principles of the ecosystem"
+              },
+              "useCases": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Use cases of the ecosystem"
+              }
+            },
+            "description": "Purpose and goals of the ecosystem"
+          },
+          "rolesAndResponsibilities": {
+            "type": "object",
+            "properties": {
+              "stakeholders": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "organisation": {
+                      "type": "string",
+                      "description": "Participant ID of the stakeholder",
+                      "required": true
+                    },
+                    "role": {
+                      "type": "string",
+                      "description": "Role of the stakeholder",
+                      "required": true
+                    },
+                    "dataOfferings": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Data offerings associated with the stakeholder"
+                    },
+                    "serviceOfferings": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Service offerings associated with the stakeholder"
+                    }
+                  }
+                },
+                "description": "Stakeholders and their roles in the ecosystem"
+              }
+            },
+            "description": "Roles and responsibilities within the ecosystem"
+          },
+          "businessLogic": {
+            "type": "object",
+            "properties": {
+              "businessModel": {
+                "type": "string",
+                "description": "Business model of the ecosystem",
+                "default": ""
+              },
+              "payingParties": {
+                "type": "object",
+                "properties": {
+                  "direction": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Direction of the paying parties"
+                  },
+                  "payers": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Payers within the ecosystem"
+                  }
+                },
+                "description": "Paying parties and their direction in the ecosystem"
+              },
+              "businessCase": {
+                "type": "object",
+                "properties": {
+                  "definition": {
+                    "type": "string",
+                    "description": "Definition of the business case",
+                    "default": ""
+                  }
+                },
+                "description": "Business case and its definition in the ecosystem"
+              },
+              "ecosystemSharing": {
+                "type": "object",
+                "properties": {
+                  "role": {
+                    "type": "string",
+                    "description": "Role in ecosystem sharing",
+                    "default": ""
+                  },
+                  "valueSharing": {
+                    "type": "object",
+                    "properties": {
+                      "businessModel": {
+                        "type": "string",
+                        "description": "Business model for value sharing",
+                        "default": ""
+                      },
+                      "valueNetwork": {
+                        "type": "object",
+                        "properties": {
+                          "direction": {
+                            "type": "string",
+                            "description": "Direction of value network",
+                            "default": ""
+                          }
+                        },
+                        "description": "Value network and its direction"
+                      },
+                      "payers": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "Payers for value sharing"
+                      }
+                    },
+                    "description": "Value sharing within the ecosystem"
+                  },
+                  "revenueModel": {
+                    "type": "object",
+                    "properties": {
+                      "businessModel": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "payingParties": {
+                        "type": "object",
+                        "properties": {
+                          "direction": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "payers": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "description": "Paying parties and their direction"
+                      }
+                    },
+                    "description": "Revenue model within the ecosystem"
+                  },
+                  "benefits": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Benefits within the ecosystem"
+                  },
+                  "costs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Costs within the ecosystem"
+                  }
+                },
+                "description": "Ecosystem sharing and its components"
+              }
+            },
+            "description": "Business logic within the ecosystem"
+          },
+          "dataValue": {
+            "type": "object",
+            "properties": {
+              "pricingModel": {
+                "type": "string",
+                "description": "Pricing model for data value",
+                "default": ""
+              },
+              "dataValueSolution": {
+                "type": "object",
+                "properties": {
+                  "provider": {
+                    "type": "string",
+                    "description": "Participant ID of the data value provider",
+                    "required": true
+                  },
+                  "offering": {
+                    "type": "string",
+                    "description": "Participant ID of the data value offering",
+                    "required": true
+                  },
+                  "buildingBlock": {
+                    "type": "string",
+                    "description": "Building block for data value solution",
+                    "default": ""
+                  }
+                },
+                "description": "Data value solution and its components"
+              },
+              "dataNetworkSolutions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": ["buy", "rent", "build"],
+                      "description": "Type of data network solution (buy, rent, or build)"
+                    },
+                    "pays": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Payers within the data network solution"
+                    }
+                  }
+                },
+                "description": "Data network solutions and their types"
+              },
+              "levelOfCommitment": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Level of commitment within the ecosystem"
+              }
+            },
+            "description": "Data value and its components within the ecosystem"
+          },
+          "governance": {
+            "type": "object",
+            "properties": {
+              "governancePrinciples": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Governance principles within the ecosystem"
+              },
+              "decisionModel": {
+                "type": "object",
+                "properties": {
+                  "perimeter": {
+                    "type": "string",
+                    "description": "Perimeter of the decision model",
+                    "default": ""
+                  },
+                  "decisionProcess": {
+                    "type": "string",
+                    "description": "Decision process within the ecosystem",
+                    "default": ""
+                  }
+                },
+                "description": "Decision model and its components within the ecosystem"
+              }
+            },
+            "description": "Governance and its components within the ecosystem"
+          },
+          "dataServicesInfrastructure": {
+            "type": "object",
+            "properties": {
+              "infrastructureServices": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Infrastructure services within the ecosystem"
+              },
+              "dataUsageControl": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Data usage control within the ecosystem"
+              },
+              "consentManagement": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Consent management within the ecosystem"
+              },
+              "dataQuality": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Data quality within the ecosystem"
+              },
+              "operationalMonitoring": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Operational monitoring within the ecosystem"
+              },
+              "issuesQuestions": {
+                "type": "string",
+                "description": "Issues and questions within the ecosystem",
+                "default": ""
+              },
+              "links": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Links within the ecosystem"
+              }
+            },
+            "description": "Data services infrastructure and its components within the ecosystem"
+          },
+          "systemDesignAndArchitecture": {
+            "type": "object",
+            "properties": {
+              "systemPrinciples": {
+                "type": "object",
+                "properties": {
+                  "buildingBlocks": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Building blocks within the system principles"
+                  },
+                  "requirements": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Requirements within the system principles"
+                  },
+                  "architecture": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Architecture within the system principles"
+                  }
+                },
+                "description": "System principles and their components"
+              },
+              "metadataFormats": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "Name of the metadata format",
+                      "default": ""
+                    },
+                    "link": {
+                      "type": "string",
+                      "description": "Link to the metadata format",
+                      "default": ""
+                    }
+                  }
+                },
+                "description": "Metadata formats and their components"
+              }
+            },
+            "description": "System design and architecture within the ecosystem"
+          },
+          "functionalRequirements": {
+            "type": "object",
+            "properties": {
+              "technicalInterfaces": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "Name of the technical interface",
+                      "default": ""
+                    },
+                    "link": {
+                      "type": "string",
+                      "description": "Link to the technical interface",
+                      "default": ""
+                    },
+                    "evolutionType": {
+                      "type": "string",
+                      "description": "Evolution type of the technical interface",
+                      "default": ""
+                    }
+                  }
+                },
+                "description": "Technical interfaces and their components"
+              },
+              "acIdentities": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "AC identities within the functional requirements"
+              },
+              "dataUsageControlSolutions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Data usage control solutions within the functional requirements"
+              },
+              "transactionManagement": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Transaction management within the functional requirements"
+              },
+              "dataGovernanceSolution": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Data governance solutions within the functional requirements"
+              }
+            },
+            "description": "Functional requirements within the ecosystem"
+          },
+          "informationManagement": {
+            "type": "object",
+            "properties": {
+              "dataServices": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Data services within the information management"
+              },
+              "dataQuality": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Data quality within the information management"
+              }
+            },
+            "description": "Information management within the ecosystem"
+          },
+          "security": {
+            "type": "object",
+            "properties": {
+              "threatAssessment": {
+                "type": "object",
+                "properties": {
+                  "methods": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Methods used for threat assessment"
+                  },
+                  "standards": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Standards used for threat assessment"
+                  },
+                  "threats": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Threats within the threat assessment"
+                  },
+                  "securityObjectives": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Security objectives within the threat assessment"
+                  }
+                },
+                "description": "Threat assessment and its components"
+              },
+              "riskManagementTools": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Risk management tools used within the ecosystem"
+              }
+            },
+            "description": "Security and its components within the ecosystem"
+          },
+          "privacyAndPersonalData": {
+            "type": "object",
+            "properties": {
+              "inclusionPersonalData": {
+                "type": "boolean",
+                "description": "Flag indicating inclusion of personal data"
+              },
+              "PersonalDataManagementSolution": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Personal data management solutions"
+              }
+            },
+            "description": "Privacy and personal data within the ecosystem"
+          },
+          "jsonld": {
+            "type": "string",
+            "description": "JSON-LD string",
+            "required": true,
+            "default": ""
+          },
+          "schema_version": {
+            "type": "string",
+            "description": "Schema version",
+            "required": true,
+            "default": "v0.0.1"
+          }
+        },
+        "description": "Schema for an ecosystem"
+      },
+      "ServiceOffering": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "required": true
+          },
+          "description": {
+            "type": "string",
+            "required": true
+          },
+          "landingPage": {
+            "type": "string",
+            "required": true
+          },
+          "keywords": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "distribution": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "accrualPeriodicity": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "spatial": {
+            "type": "string"
+          },
+          "theme": {
+            "type": "string"
+          },
+          "temporalResolution": {
+            "type": "string"
+          },
+          "businessModel": {
+            "type": "string"
+          },
+          "offeredBy": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "license": {
+            "type": "string"
+          },
+          "jsonld": {
+            "type": "string",
+            "required": true
+          },
+          "schema_version": {
+            "type": "string",
+            "required": true,
+            "default": "v0.0.1"
+          }
+        }
+      }
+    }
+  }
+}
