@@ -59,14 +59,14 @@
         }
       }
     },
-    "/matching/data-services": {
+    "/matching/data-services/{id}": {
       "get": {
         "summary": "Find closest corresponding data and services",
         "description": "Uses MongoDB text index to find closest corresponding data and services based on the needs of the ecosystem",
         "parameters": [
           {
-            "name": "ecosystemId",
-            "in": "query",
+            "name": "id",
+            "in": "path",
             "description": "ID of the ecosystem to find matching data and services",
             "required": true,
             "schema": {
@@ -93,22 +93,6 @@
                       "items": {
                         "$ref": "#/components/schemas/ServiceOffering"
                       }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad request, missing ecosystemId from query parameter",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string",
-                      "example": "missing ecosystemId from query parameter"
                     }
                   }
                 }
